@@ -40,9 +40,10 @@ node {
          # Create a new task definition for this build
          sed -e "s;%BUILD_NUMBER%;${BUILD_NUMBER};g" docker-helloworld.json > docker-helloworld-v_${BUILD_NUMBER}.json
          aws ecs register-task-definition --family docker-helloworld --cli-input-json file://docker-helloworld-v_${BUILD_NUMBER}.json
+         TASK_REVISION=`aws ecs describe-task-definition --task-definition docker-helloworld | egrep "revision" | tr "/" " " | awk '{print $2}' | sed 's/"$//'`
 
          #update Container
-         aws ecs update-service --cluster default --service sample-webapp --task-definition docker-helloworld:${BUILD_NUMBER} --desired-count 1
+         aws ecs update-service --cluster default --service sample-webapp --task-definition docker-helloworld:${TASK_REVISION} --desired-count 1
 
          '''
     }
